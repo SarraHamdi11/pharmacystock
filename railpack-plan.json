@@ -1,5 +1,4 @@
 {
-  "name": "laravel-app",
   "php": "8.2",
   "node": "22",
   "extensions": [
@@ -18,31 +17,5 @@
     "xml",
     "gd",
     "bcmath"
-  ],
-  "steps": {
-    "prepare": [
-      "mkdir -p /usr/local/etc/php/conf.d",
-      "mkdir -p /conf.d/"
-    ],
-    "install-composer": [
-      "composer install --optimize-autoloader --no-scripts --no-interaction"
-    ],
-    "install-node": [
-      "npm ci"
-    ],
-    "prune-node": [
-      "npm prune --omit=dev --ignore-scripts"
-    ],
-    "build": [
-      "npm run build",
-      "mkdir -p storage/framework/{sessions,views,cache,testing} storage/logs bootstrap/cache && chmod -R a+rw storage",
-      "php artisan config:cache",
-      "php artisan event:cache",
-      "php artisan route:cache",
-      "php artisan view:cache"
-    ],
-    "deploy": [
-      "/start-container.sh"
-    ]
-  }
+  ]
 }
