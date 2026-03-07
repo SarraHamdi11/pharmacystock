@@ -4,7 +4,7 @@
     </h5>
     <ul class="nav flex-column mb-2">
         <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('dashboard') }}">
+            <a class="nav-link text-white" href="{{ route('dashboard.index') }}">
                 <i class="bi bi-speedometer2"></i> {{ __('Dashboard') }}
             </a>
         </li>

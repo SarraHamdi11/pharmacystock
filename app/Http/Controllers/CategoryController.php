@@ -57,6 +57,19 @@ class CategoryController extends Controller
                          ->with('success', 'Category created successfully.');
     }
 
+    public function update(Request $request, Category $category)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+    
+        $category->update($validatedData);
+    
+        return redirect()->route('categories.index')
+                         ->with('success', 'Category updated successfully.');
+    }
+
     public function destroy(Category $category)
     {
         try {

@@ -43,7 +43,7 @@ class CustomerController extends Controller
         Mail::to($request->email)->send(new MyMailer($request->first_name . ' ' . $request->last_name));
 
         return redirect()->route('customers.index')
-            ->with('success', 'Customer created successfully.');
+            ->with('success', 'Patient created successfully!');
     }
 
     /**
@@ -57,13 +57,20 @@ class CustomerController extends Controller
     /**
      * Update the specified customer in storage.
      */
-    public function update(CustomerRequest $request, Customer $customer): RedirectResponse
+    public function update(Request $request, Customer $customer): RedirectResponse
     {
-        // The request is automatically validated by the CustomerRequest class
-        $customer->update($request->validated());
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email,' . $customer->id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        $customer->update($validated);
 
         return redirect()->route('customers.index')
-            ->with('success', 'Customer updated successfully.');
+            ->with('success', 'Patient updated successfully!');
     }
 
     /**
@@ -82,59 +89,34 @@ class CustomerController extends Controller
         $customer->delete();
 
         return redirect()->route('customers.index')
-            ->with('success', 'Customer deleted successfully.');
+            ->with('success', 'Patient deleted successfully!');
     }
 
-    /**
-     * Search for customers by name, email, phone or address.
-     */
-    public function search(Request $request)
-    {
-        $term = $request->get('term');
-        $page = $request->get('page', 1);
-
-        $customers = Customer::where('first_name', 'like', "%{$term}%")
-            ->orWhere('last_name', 'like', "%{$term}%")
-            ->orWhere('email', 'like', "%{$term}%")
-            ->orWhere('phone', 'like', "%{$term}%")
-            ->orWhere('address', 'like', "%{$term}%")
-            ->paginate(10);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'customers' => $customers->items(),
-                'pagination' => [
-                    'total' => $customers->total(),
-                    'per_page' => $customers->perPage(),
-                    'current_page' => $customers->currentPage(),
-                    'last_page' => $customers->lastPage()
-                ]
-            ]);
-    }
     /**
      * Search for customers by name, email, phone or address.
      */
     public function search(Request $request)
     {
         $term = $request->input('term');
-        $customers = Customer::where('first_name', 'like', "%{$term}%")
-            ->orWhere('last_name', 'like', "%{$term}%")
-            ->orWhere('email', 'like', "%{$term}%")
-            ->orWhere('phone', 'like', "%{$term}%")
-            ->orWhere('address', 'like', "%{$term}%")
-            ->paginate(10);
+        
+        // If search term is empty, redirect to index
+        if (empty($term) || trim($term) === '') {
+            return redirect()->route('customers.index');
+        }
+        
+        // Simple search by name only
+        $customers = Customer::with(['orders'])
+            ->where(function($query) use ($term) {
+                $query->where('first_name', 'like', "%{$term}%")
+                      ->orWhere('last_name', 'like', "%{$term}%")
+                      ->orWhere('email', 'like', "%{$term}%")
+                      ->orWhere('phone', 'like', "%{$term}%")
+                      ->orWhere('address', 'like', "%{$term}%");
+            })
+            ->limit(10)
+            ->get();
 
-        return response()->json([
-            'customers' => $customers->items(),
-            'pagination' => [
-                'total' => $customers->total(),
-                'per_page' => $customers->perPage(),
-                'current_page' => $customers->currentPage(),
-                'last_page' => $customers->lastPage(),
-                'from' => $customers->firstItem(),
-                'to' => $customers->lastItem(),
-                'links' => $customers->linkCollection()->toArray()
-            ]
-        ]);
+        // Return search results view
+        return view('customers.search-results', compact('customers', 'term'));
     }
 }
