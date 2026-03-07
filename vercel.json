@@ -1,11 +1,9 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "public/index.php",
-            "use": "@vercel/php"
-        }
-    ],
+    "buildCommand": "echo 'No build needed for PHP'",
+    "outputDirectory": "public",
+    "installCommand": "echo 'No install needed for PHP'",
+    "framework": null,
     "routes": [
         {
             "src": "/(.*)",
