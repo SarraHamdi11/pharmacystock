@@ -71,7 +71,7 @@
             <div class="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="fas fa-list"></i>
-                    Sales Results ({{ $orders->count() }} orders)
+                    Sales Results ({{ $orders->total() }} orders)
                 </h2>
             </div>
             
@@ -79,7 +79,7 @@
                 <table class="w-full min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
@@ -89,15 +89,15 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($orders as $order)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $order->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $order->order_number }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $order->customer->first_name }} {{ $order->customer->last_name }}
+                                    {{ $order->customer->name ?? 'Walk-in' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $order->created_at->format('M d, Y') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${{ number_format($order->total ?? 0, 2) }}
+                                    ${{ number_format($order->total_amount ?? 0, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -108,6 +108,11 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                {{ $orders->links() }}
             </div>
         </div>
     </div>

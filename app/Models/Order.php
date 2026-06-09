@@ -19,7 +19,9 @@ class Order extends Model
     protected $fillable = [
         'customer_id',
         'order_date',
-        // Ajoutez ici d'autres colonnes que vous souhaitez pouvoir assigner massivement
+        'order_number',
+        'total_amount',
+        'status',
     ];
 
     /**
@@ -29,7 +31,21 @@ class Order extends Model
      */
     protected $casts = [
         'order_date' => 'datetime',
+        'total_amount' => 'decimal:2',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($order) {
+            if (empty($order->order_number)) {
+                $order->order_number = 'ORD-' . strtoupper(uniqid());
+            }
+            if (empty($order->order_date)) {
+                $order->order_date = now();
+            }
+        });
+    }
 
     /**
      * Get the customer that owns the order.
@@ -44,6 +60,6 @@ class Order extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class)->withPivot('quantity', 'price');
+        return $this->belongsToMany(Product::class, 'order_items')->withPivot('quantity', 'price');
     }
 }

@@ -10,6 +10,7 @@ use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -26,7 +27,7 @@ class ReportController extends Controller
      */
     public function inventory(Request $request): View
     {
-        $query = Product::with(['category', 'supplier', 'stocks']);
+        $query = Product::with(['category:id,name', 'supplier:id,first_name,last_name', 'stocks:id,product_id,quantity_stock']);
 
         // Apply filters
         if ($request->filled('category_id')) {
@@ -38,7 +39,7 @@ class ReportController extends Controller
         if ($request->filled('stock_status')) {
             if ($request->stock_status == 'low') {
                 $query->whereHas('stocks', function ($q) {
-                    $q->where('quantity_stock', '<=', \DB::raw('min_stock'));
+                    $q->whereColumn('quantity_stock', '<=', 'products.min_stock');
                 });
             } elseif ($request->stock_status == 'out') {
                 $query->whereHas('stocks', function ($q) {
@@ -47,9 +48,9 @@ class ReportController extends Controller
             }
         }
 
-        $products = $query->get();
-        $categories = Category::all();
-        $suppliers = Supplier::all();
+        $products = $query->paginate(20)->withQueryString();
+        $categories = Category::orderBy('name')->get(['id', 'name']);
+        $suppliers = Supplier::orderBy('last_name')->get(['id', 'first_name', 'last_name']);
 
         return view('reports.inventory', compact('products', 'categories', 'suppliers'));
     }
@@ -70,60 +71,47 @@ class ReportController extends Controller
         try {
             $query = Order::with(['customer']);
 
-            // Date range filter
-            if ($request->has('start_date')) {
-                $query->whereDate('created_at', '>=', $request->start_date);
+            // Date range filter - matching view parameters date_from/date_to
+            if ($request->has('date_from') && $request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
             }
 
-            if ($request->has('end_date')) {
-                $query->whereDate('created_at', '<=', $request->end_date);
+            if ($request->has('date_to') && $request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
             }
 
             if ($request->filled('customer_id')) {
                 $query->where('customer_id', $request->customer_id);
             }
 
-            $orders = $query->orderBy('created_at', 'desc')->get();
+            $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
 
-            // Calculate statistics (simplified without product relationships)
-            $totalSales = $orders->sum('total') ?? 0;
-            $totalOrders = $orders->count();
+            // Calculate statistics using aggregates instead of collection methods
+            $statsQuery = clone $query;
+            $stats = $statsQuery->selectRaw('SUM(total_amount) as total_sales, COUNT(*) as total_orders')->first();
+            
+            $totalSales = $stats->total_sales ?? 0;
+            $totalOrders = $stats->total_orders ?? 0;
             $averageOrderValue = $totalOrders > 0 ? $totalSales / $totalOrders : 0;
 
-            // Group by month for chart
-            $monthlySales = $orders->groupBy(function ($order) {
-                return $order->created_at->format('Y-m');
-            })->map(function ($monthOrders) {
-                return $monthOrders->sum('total') ?? 0;
-            });
+            // Group by month for chart - using DB aggregation for performance
+            $monthlySales = clone $query;
+            $monthlySales = $monthlySales->selectRaw("strftime('%Y-%m', created_at) as month, SUM(total_amount) as total")
+                ->groupBy('month')
+                ->pluck('total', 'month');
 
-            $customers = \App\Models\Customer::all();
+            $customers = \App\Models\Customer::orderBy('last_name')->get(['id', 'first_name', 'last_name']);
 
-            return view('reports.sales', compact(
-                'orders',
-                'customers',
-                'totalSales',
-                'totalOrders',
-                'averageOrderValue',
-                'monthlySales'
-            ));
+            return view('reports.sales', compact('orders', 'totalSales', 'totalOrders', 'averageOrderValue', 'monthlySales', 'customers'));
         } catch (\Exception $e) {
-            // Fallback if there are database issues
-            $orders = collect([]);
-            $customers = \App\Models\Customer::all();
-            $totalSales = 0;
-            $totalOrders = 0;
-            $averageOrderValue = 0;
-            $monthlySales = collect([]);
-            
-            return view('reports.sales', compact(
-                'orders',
-                'customers',
-                'totalSales',
-                'totalOrders',
-                'averageOrderValue',
-                'monthlySales'
-            ));
+            return view('reports.sales', [
+                'orders' => collect(), 
+                'totalSales' => 0, 
+                'totalOrders' => 0, 
+                'averageOrderValue' => 0, 
+                'monthlySales' => collect(), 
+                'customers' => \App\Models\Customer::all()
+            ]);
         }
     }
 
@@ -144,37 +132,19 @@ class ReportController extends Controller
             ->where('track_expiry', true)
             ->whereNotNull('expiry_date');
 
-        // Filter by expiry period
-        if ($request->has('expiry_period')) {
-            $days = match($request->expiry_period) {
-                '7' => 7,
-                '30' => 30,
-                '60' => 60,
-                '90' => 90,
-                default => 30
-            };
+        $days = (int) $request->get('expiry_period', 30);
+        if ($days > 0) {
             $query->where('expiry_date', '<=', now()->addDays($days));
         }
 
         $products = $query->orderBy('expiry_date')->get();
 
-        // Group by expiry status
-        $expired = $products->filter(fn($p) => $p->is_expired);
-        $expiringSoon = $products->filter(fn($p) => $p->is_expiring_soon && !$p->is_expired);
+        // Pass required collections for the summary cards
+        $expired = $products->filter->is_expired;
+        $expiringSoon = $products->filter->is_expiring_soon;
         $good = $products->filter(fn($p) => !$p->is_expired && !$p->is_expiring_soon);
 
-        // Calculate value at risk
-        $valueAtRisk = $expired->concat($expiringSoon)->sum(function ($product) {
-            return ($product->price ?? 0) * $product->current_stock;
-        });
-
-        return view('reports.expiry', compact(
-            'products',
-            'expired',
-            'expiringSoon',
-            'good',
-            'valueAtRisk'
-        ));
+        return view('reports.expiry', compact('products', 'days', 'expired', 'expiringSoon', 'good'));
     }
 
     /**
@@ -309,7 +279,7 @@ class ReportController extends Controller
         $exportData = $orders->flatMap(function ($order) {
             return $order->products->map(function ($product) use ($order) {
                 return [
-                    'Order ID' => $order->id,
+                    'Order ID' => $order->order_number,
                     'Date' => $order->created_at->format('Y-m-d H:i:s'),
                     'Customer' => $order->customer->name ?? 'N/A',
                     'Product Name' => $product->name,

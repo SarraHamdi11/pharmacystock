@@ -11,17 +11,7 @@ class CategoryExport implements FromCollection, WithHeadings
    
     public function collection()
     {
-        
-        $categories = Category::with('maladie')->get();
-        
-        
-        return $categories->map(function($category) {
-            return [
-                'id' => $category->id,
-                'name' => $category->name,
-                'maladie' => $category->maladie ? $category->maladie->name : null,
-            ];
-        });
+        return Category::all(['id', 'name']);
     }
 
     
@@ -29,8 +19,7 @@ class CategoryExport implements FromCollection, WithHeadings
     {
         return [
             'ID',
-            'Nom de la catégorie',
-            'Maladie associée'
+            'Category Name',
         ];
     }
 }

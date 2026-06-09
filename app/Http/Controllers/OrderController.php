@@ -3,17 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Services\ActivityService;
+use App\Http\Requests\OrderRequest;
 
 class OrderController extends Controller
 {
-    
-    public function index(): View
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
     {
+        $this->orderService = $orderService;
+    }
+    
+    public function index(Request $request): View
+    {
+        $query = Order::with(['customer', 'products']);
+
+        if ($request->filled('term')) {
+            $term = $request->term;
+            $query->where(function($q) use ($term) {
+                $q->where('order_number', 'like', "%{$term}%")
+                  ->orWhereHas('customer', function ($cq) use ($term) {
+                      $cq->where('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "%{$term}%");
+                  });
+            });
+        }
+
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
         return view('orders.index', [
-            'orders' => Order::paginate(10)
+            'orders' => $query->latest()->paginate(12)->withQueryString()
         ]);
     }
 
@@ -24,9 +50,9 @@ class OrderController extends Controller
     }
 
     
-    public function store(Request $request): RedirectResponse
+    public function store(OrderRequest $request): RedirectResponse
     {
-        Order::create($request->all()); // Vous devrez probablement gérer les relations avec les produits, etc.
+        $this->orderService->createOrder($request->validated());
 
         return redirect()->route('orders.index')
             ->with('success', 'Order created successfully.');
@@ -45,9 +71,10 @@ class OrderController extends Controller
     }
 
     
-    public function update(Request $request, Order $order): RedirectResponse
+    public function update(OrderRequest $request, Order $order): RedirectResponse
     {
-        $order->update($request->all()); // Vous devrez probablement gérer les relations avec les produits, etc.
+        $order->update($request->validated());
+        ActivityService::log('updated', "Updated order: {$order->order_number}", $order);
 
         return redirect()->route('orders.index')
             ->with('success', 'Order updated successfully.');
@@ -61,7 +88,9 @@ class OrderController extends Controller
     
     public function destroy(Order $order): RedirectResponse
     {
-        $order->delete(); // Ou peut-être mettre à jour un statut 'cancelled'
+        $orderNum = $order->order_number;
+        $order->delete();
+        ActivityService::log('deleted', "Cancelled order: {$orderNum}");
 
         return redirect()->route('orders.index')
             ->with('success', 'Order cancelled successfully.');

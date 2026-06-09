@@ -1,122 +1,85 @@
-@import 'tailwindcss';
-@import 'bootstrap/dist/css/bootstrap.min';
+@import "tailwindcss";
 
+@theme {
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-600: #d97706;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+  
+  .dark body {
+    @apply bg-slate-950 text-slate-50;
+  }
+}
+
+@layer components {
+  .card-glass {
+    @apply bg-white/90 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl transition-all duration-300;
+  }
+  
+  .card-glass:hover {
+    @apply shadow-[0_20px_50px_rgba(8,112,184,0.07)];
+  }
+  
+  .input-modern {
+    @apply w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200/60 rounded-2xl focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 focus:bg-white transition-all outline-none text-sm text-slate-900 placeholder:text-slate-400 font-medium;
+  }
+  
+  /* Base button styles */
+  .btn-base {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none bg-brand-600 text-white hover:bg-brand-700 shadow-lg shadow-brand-600/20;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm;
+  }
+
+  .nav-item {
+    @apply flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition-all;
+  }
+  
+  .nav-item-active {
+    @apply flex items-center space-x-3 px-3 py-2.5 rounded-xl font-semibold text-brand-700 bg-brand-50 transition-all;
+  }
+  
+  .stat-card {
+    @apply bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-1;
+  }
+
+  .table-modern {
+    @apply w-full text-left border-separate border-spacing-0;
+  }
+
+  .table-modern th {
+    @apply px-6 py-4 bg-slate-50/50 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-100;
+  }
+
+  .table-modern td {
+    @apply px-6 py-4 text-sm border-b border-slate-100 transition-colors;
+  }
+
+  .table-modern tr:hover td {
+    @apply bg-slate-50/80;
+  }
+}
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
-
-/* Bootstrap Overrides */
-:root {
-    --bs-primary: var(--primary-color);
-    --bs-secondary: var(--secondary-color);
-    --bs-success: var(--success-color);
-    --bs-info: var(--info-color);
-    --bs-warning: var(--warning-color);
-    --bs-danger: var(--danger-color);
-}
-
-/* Enhanced Color Palette */
-:root {
-    --primary-color: #6366F1;
-    --primary-hover: #4f46e5;
-    --secondary-color: #22C55E;
-    --secondary-hover: #16a34a;
-    --accent-color: #F97316;
-    --accent-hover: #ea580c;
-    --background-color: #F8FAFC;
-    --text-color: #0F172A;
-    --text-light: #ffffff;
-    --border-color: #e2e8f0;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --info-color: #3b82f6;
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-}
-
-/* Base Styles */
-body {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-family: var(--font-sans);
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-}
-
-.btn-secondary:hover {
-    background-color: var(--secondary-hover);
-}
-
-/* Cards */
-.card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    transition: transform 0.2s ease;
-    border: 1px solid var(--border-color);
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 1rem 0;
-}
-
-.table th {
-    background-color: var(--background-color);
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    color: var(--primary-color);
-    border-bottom: 2px solid var(--primary-color);
-}
-
-.table td {
-    padding: 1rem;
-    border-bottom: 1px solid #E2E8F0;
-    transition: background-color 0.2s ease;
-}
-
-.table tr:hover td {
-    background-color: #F1F5F9;
-}

@@ -9,7 +9,17 @@ class ProductRequest extends FormRequest
     
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('manage products');
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'track_expiry' => $this->has('track_expiry'),
+        ]);
     }
 
     /**
@@ -29,7 +39,7 @@ class ProductRequest extends FormRequest
             'min_stock' => ['required', 'integer', 'min:0'],
             'track_expiry' => ['boolean'],
             'description' => ['nullable', 'string'],
-            'picture' => ['nullable', 'image', 'max:2048']
+            'picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048']
         ];
     }
 

@@ -3,11 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ProductController;
-use App\Http\Controllers\API\CategoryController;
-use App\Http\Controllers\API\SupplierController;
-use App\Http\Controllers\API\CustomerController;
-use App\Http\Controllers\API\OrderController;
-use App\Http\Controllers\API\StockController;
 use App\Http\Controllers\API\DashboardController;
 
 /*
@@ -42,29 +37,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/products/by-supplier/{supplier}', [ProductController::class, 'bySupplier']);
     Route::post('/products/import', [ProductController::class, 'import']);
     Route::get('/products/export', [ProductController::class, 'export']);
-    
-    // Categories
-    Route::apiResource('categories', CategoryController::class);
-    Route::get('/categories/{category}/products', [CategoryController::class, 'products']);
-    
-    // Suppliers
-    Route::apiResource('suppliers', SupplierController::class);
-    Route::get('/suppliers/{supplier}/products', [SupplierController::class, 'products']);
-    
-    // Customers
-    Route::apiResource('customers', CustomerController::class);
-    Route::get('/customers/search', [CustomerController::class, 'search']);
-    
-    // Orders
-    Route::apiResource('orders', OrderController::class);
-    Route::get('/orders/{order}/products', [OrderController::class, 'products']);
-    Route::post('/orders/{order}/add-product', [OrderController::class, 'addProduct']);
-    
-    // Stocks
-    Route::apiResource('stocks', StockController::class);
-    Route::post('/stocks/adjust', [StockController::class, 'adjustStock']);
-    Route::get('/stocks/low-stock', [StockController::class, 'lowStock']);
-    Route::get('/stocks/expiry-alerts', [StockController::class, 'expiryAlerts']);
     
     // Reports
     Route::get('/reports/sales', [DashboardController::class, 'salesReport']);

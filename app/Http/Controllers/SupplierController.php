@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Http\Requests\SupplierRequest;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +16,7 @@ class SupplierController extends Controller
     public function index(): View
     {
         return view('suppliers.index', [
-            'suppliers' => Supplier::paginate(10)
+            'suppliers' => Supplier::latest()->paginate(10)
         ]);
     }
 
@@ -28,9 +29,9 @@ class SupplierController extends Controller
     }
 
     
-    public function store(Request $request): RedirectResponse
+    public function store(SupplierRequest $request): RedirectResponse
     {
-        Supplier::create($request->all()); 
+        Supplier::create($request->validated()); 
 
         return redirect()->route('suppliers.index')
             ->with('success', 'Supplier created successfully.');
@@ -43,9 +44,9 @@ class SupplierController extends Controller
     }
 
     
-    public function update(Request $request, Supplier $supplier): RedirectResponse
+    public function update(SupplierRequest $request, Supplier $supplier): RedirectResponse
     {
-        $supplier->update($request->all()); // Vous devrez peut-être créer une SupplierRequest pour la validation
+        $supplier->update($request->validated()); 
 
         return redirect()->route('suppliers.index')
             ->with('success', 'Supplier updated successfully.');

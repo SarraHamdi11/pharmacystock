@@ -16,10 +16,22 @@ class CustomerController extends Controller
     /**
      * Display a listing of the customers.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $query = Customer::query();
+
+        if ($request->filled('term')) {
+            $term = $request->term;
+            $query->where(function($q) use ($term) {
+                $q->where('first_name', 'like', "%{$term}%")
+                  ->orWhere('last_name', 'like', "%{$term}%")
+                  ->orWhere('email', 'like', "%{$term}%")
+                  ->orWhere('phone', 'like', "%{$term}%");
+            });
+        }
+
         return view('customers.index', [
-            'customers' => Customer::paginate(10)
+            'customers' => $query->latest()->paginate(12)->withQueryString()
         ]);
     }
 
@@ -40,7 +52,7 @@ class CustomerController extends Controller
         Customer::create($request->validated());
 
         //envoi de l'email
-        Mail::to($request->email)->send(new MyMailer($request->first_name . ' ' . $request->last_name));
+        Mail::to($request->email)->send(new MyMailer('Welcome to PharmaStock', 'Dear ' . $request->first_name . ', welcome to our pharmacy!'));
 
         return redirect()->route('customers.index')
             ->with('success', 'Patient created successfully!');

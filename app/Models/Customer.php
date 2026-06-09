@@ -19,6 +19,14 @@ class Customer extends Model
         'phone',
     ];
 
+    /**
+     * Get the customer's full name.
+     */
+    public function getNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

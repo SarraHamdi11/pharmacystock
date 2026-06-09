@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Stock;
-use App\Models\Product; // Probablement nécessaire pour lier le stock aux produits
-use App\Models\Store;   // Probablement nécessaire pour lier le stock aux magasins
+use App\Models\Product;
+use App\Models\Store;
+use App\Http\Requests\StockRequest;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -12,10 +13,21 @@ use Illuminate\Http\RedirectResponse;
 class StockController extends Controller
 {
    
-    public function index(): View
+    public function index(Request $request): View
     {
+        $query = Stock::with(['product.category', 'store']);
+
+        if ($request->filled('term')) {
+            $term = $request->term;
+            $query->whereHas('product', function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%");
+            })->orWhereHas('store', function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%");
+            });
+        }
+
         return view('stocks.index', [
-            'stocks' => Stock::paginate(10)
+            'stocks' => $query->latest()->paginate(10)->withQueryString()
         ]);
     }
 
@@ -28,9 +40,9 @@ class StockController extends Controller
     }
 
     
-    public function store(Request $request): RedirectResponse
+    public function store(StockRequest $request): RedirectResponse
     {
-        Stock::create($request->all()); // Vous devrez peut-être valider que le produit et le magasin existent
+        Stock::create($request->validated());
 
         return redirect()->route('stocks.index')
             ->with('success', 'Stock added successfully.');
@@ -50,9 +62,9 @@ class StockController extends Controller
     }
 
     
-    public function update(Request $request, Stock $stock): RedirectResponse
+    public function update(StockRequest $request, Stock $stock): RedirectResponse
     {
-        $stock->update($request->all()); // Vous devrez peut-être valider que le produit et le magasin existent
+        $stock->update($request->validated());
 
         return redirect()->route('stocks.index')
             ->with('success', 'Stock updated successfully.');

@@ -78,7 +78,7 @@
                         @foreach($suppliers as $supplier)
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ $supplier->first_name }} {{ $supplier->last_name }}
+                                    {{ $supplier->name }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $supplier->email }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $supplier->phone ?? 'N/A' }}</td>

@@ -2,95 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
+use App\Services\DashboardService;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display the main dashboard
-     */
+    protected $dashboardService;
+
+    public function __construct(DashboardService $dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
+    }
+
     public function index(): View
     {
-        // Set session to show loading screen on first visit
-        if (!session()->has('dashboard_visited')) {
-            session(['show_loading' => true, 'dashboard_visited' => true]);
-        } else {
-            session()->forget('show_loading');
-        }
-        
         try {
-            // Get basic statistics
-            $stats = [
-                'products' => \App\Models\Product::count(),
-                'customers' => \App\Models\Customer::count(),
-                'orders' => \App\Models\Order::whereMonth('created_at', now()->month)->count(),
-                'low_stock_count' => \App\Models\Stock::where('quantity_stock', '<=', 10)->count(),
-            ];
-            
-            return view('dashboard', compact('stats'));
-            
+            $stats = $this->dashboardService->getStats();
+            $tasks = $this->dashboardService->getTasks();
         } catch (\Exception $e) {
-            // Fallback stats if there's an error
-            $stats = [
-                'products' => 0,
-                'customers' => 0,
-                'orders' => 0,
-                'low_stock_count' => 0,
-            ];
-            
-            return view('dashboard', compact('stats'));
+            $stats = ['products' => 0, 'customers' => 0, 'orders' => 0, 'low_stock_count' => 0, 'expiring_count' => 0, 'revenue_month' => 0];
+            $tasks = [];
         }
+
+        return view('dashboard', compact('stats', 'tasks'));
     }
 
-    /**
-     * Get dashboard data for AJAX requests
-     */
     public function getDashboardData(): JsonResponse
     {
-        try {
-            $stats = [
-                'products' => \App\Models\Product::count(),
-                'customers' => \App\Models\Customer::count(),
-                'orders' => \App\Models\Order::whereMonth('created_at', now()->month)->count(),
-                'low_stock_count' => \App\Models\Stock::where('quantity_stock', '<=', 10)->count(),
-            ];
-            
-            return response()->json(['success' => true, 'data' => $stats]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        }
+        return response()->json(['success' => true, 'data' => $this->dashboardService->getStats()]);
     }
 
-    // Keep existing methods that are used by routes - redirect to main views
-    public function customers()
+    public function getLowStockAlerts(): JsonResponse
     {
-        return redirect()->route('customers.index');
+        $items = Product::with(['category', 'stocks'])
+            ->whereHas('stocks', fn ($q) => $q->where('quantity_stock', '<=', 10))
+            ->limit(20)
+            ->get()
+            ->map(fn ($p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'stock' => $p->stocks->sum('quantity_stock'),
+                'category' => $p->category?->name,
+            ]);
+
+        return response()->json(['success' => true, 'data' => $items]);
     }
 
-    public function suppliers()
+    public function getSalesAnalytics(): JsonResponse
     {
-        return redirect()->route('suppliers.index');
+        return response()->json([
+            'success' => true,
+            'data' => $this->dashboardService->getSalesAnalytics(),
+        ]);
     }
 
-    public function orders()
+    public function getInventoryAnalytics(): JsonResponse
     {
-        return redirect()->route('orders.index');
-    }
-
-    public function maladies()
-    {
-        // Redirect to dashboard since maladies view doesn't exist
-        return redirect()->route('dashboard.index');
-    }
-
-    public function productsBySupplier()
-    {
-        return redirect()->route('products.index');
-    }
-
-    public function productsByStore()
-    {
-        return redirect()->route('products.index');
+        return response()->json([
+            'success' => true,
+            'data' => $this->dashboardService->getInventoryAnalytics(),
+        ]);
     }
 }

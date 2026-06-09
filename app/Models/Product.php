@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Carbon\Carbon;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -97,33 +98,7 @@ class Product extends Model
      */
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
-    }
-
-    /**
-     * Get the maladies for the product.
-     */
-    public function maladies(): BelongsToMany
-    {
-        return $this->belongsToMany(Maladie::class, 'medicament_maladie')
-            ->withPivot('dosage', 'frequency', 'duration')
-            ->withTimestamps();
-    }
-
-    /**
-     * Get the medicament for the product.
-     */
-    public function medicament(): HasMany
-    {
-        return $this->hasMany(Medicament::class);
-    }
-
-    /**
-     * Get the stock alerts for the product.
-     */
-    public function stockAlerts(): HasMany
-    {
-        return $this->hasMany(StockAlert::class);
+        return $this->hasMany(OrderProduct::class);
     }
 
     /**

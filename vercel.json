@@ -1,22 +1,17 @@
 {
     "version": 2,
-    "buildCommand": "echo 'No build needed for PHP'",
-    "outputDirectory": "public",
-    "installCommand": "echo 'No install needed for PHP'",
-    "framework": null,
+    "builds": [
+        { "src": "/api/index.php", "use": "vercel-php@0.7.4" },
+        { "src": "/public/**", "use": "@vercel/static" }
+    ],
     "routes": [
         {
+            "src": "/(css|js|images|build|favicon.ico|robots.txt)(.*)",
+            "dest": "/public/$1$2"
+        },
+        {
             "src": "/(.*)",
-            "dest": "/public/index.php"
+            "dest": "/api/index.php"
         }
-    ],
-    "env": {
-        "APP_NAME": "PharmaStock Pro",
-        "APP_ENV": "production",
-        "APP_DEBUG": "false",
-        "CACHE_DRIVER": "file",
-        "SESSION_DRIVER": "file",
-        "QUEUE_CONNECTION": "sync",
-        "APP_KEY": "base64:nr4/ePEdX0w3mXViBDLknZ5BkVWxTbsObYlnfj8o6FM="
-    }
+    ]
 }

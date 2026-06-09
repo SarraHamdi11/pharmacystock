@@ -1,166 +1,90 @@
-# Pharmacy Stock
+# PharmaStock Pro 💊 | Enterprise Pharmacy Management System
 
-Inventory and stock management system for pharmacies. Built with a Laravel backend (API) and a React frontend to manage products, suppliers, stock movements, expirations, and simple reporting.
+[![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php)](https://php.net)
+[![Sanctum](https://img.shields.io/badge/Auth-Sanctum-blue?style=for-the-badge)](https://laravel.com/docs/sanctum)
+[![Testing](https://img.shields.io/badge/Testing-Pest_PHP-green?style=for-the-badge)](https://pestphp.com)
 
-Status: Beta / Production-ready (adjust as needed)
+**PharmaStock Pro** is a high-performance, enterprise-grade Pharmacy Management System designed to streamline inventory control, patient records, and sales analytics. Built with a senior-level focus on clean architecture, security, and scalability.
 
-[![License](https://img.shields.io/badge/license-MIT-blue)](#)
-[![Backend](https://img.shields.io/badge/backend-Laravel-orange)](#)
-[![Frontend](https://img.shields.io/badge/frontend-React-blue)](#)
+## 🚀 Key Features
 
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Demo / Screenshots](#demo--screenshots)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Backend (Laravel) setup](#backend-laravel-setup)
-  - [Frontend (React) setup](#frontend-react-setup)
-- [Environment Variables](#environment-variables)
-- [Database & Seeds](#database--seeds)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [API](#api)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+- **📊 Dynamic Dashboard**: Real-time KPI tracking, sales analytics, and automated task prioritization.
+- **📦 Smart Inventory**: Multi-store stock tracking, expiry date monitoring, and low-stock alerts.
+- **💳 POS & Order Management**: Professional transaction processing with automated inventory deduction.
+- **🛡️ RBAC Security**: Granular Role-Based Access Control using Spatie (Admin, Manager, Pharmacist, Employee).
+- **📡 RESTful API**: Fully documented API protected by Laravel Sanctum for mobile integration.
+- **🌍 Localization**: Multi-language support (EN, FR, AR, ES) with automatic locale detection.
+- **📋 Audit Trail**: Comprehensive logging of all critical system activities.
 
-## Features
-- Product catalog with categories and batches
-- Stock in / stock out operations
-- Expiry date tracking with alerts
-- Supplier management and purchase order records
-- Sales / dispensing logs
-- Low-stock notifications & reporting
-- Role-based access (Admin, Pharmacist, Viewer)
-- CSV import/export for inventory
+## 🏗️ Architecture
+The project follows a **Service Layer Pattern** to maintain "Thin Controllers" and encapsulate business logic.
 
-## Tech Stack
-- Backend: PHP, Laravel (API), Eloquent ORM
-- Frontend: React (Vite or Create React App), React Router
-- Database: MySQL / MariaDB
-- Optional: Redis for queues, Horizon for job monitoring
-- DevOps: Docker (recommended), GitHub Actions for CI
+- **Controllers**: Handle request/response and delegate to services.
+- **Services**: Contain the core business logic (`OrderService`, `ProductService`, `DashboardService`).
+- **FormRequests**: Centralized validation and authorization logic.
+- **Policies**: Fine-grained authorization for all resources.
+- **DTOs & Exports**: Structured data handling for imports/exports.
 
-## Demo / Screenshots
-- Add screenshots into `/docs` or `/public/assets` and reference them here.
-- Example: `![Dashboard](/docs/screenshots/dashboard.png)`
+## 🛠️ Tech Stack
+- **Backend**: Laravel 12.x, PHP 8.2+
+- **Frontend**: Tailwind CSS 4, Alpine.js, Blade Components, Vite 6
+- **Database**: Optimized for PostgreSQL/MySQL (SQLite for development)
+- **Security**: Spatie Permissions, Laravel Sanctum, Rate Limiting
+- **Testing**: Pest PHP (Feature & Unit testing)
+- **CI/CD**: GitHub Actions (Automated testing, Pint, and migrations)
 
-## Getting Started
+## ⚙️ Installation
 
-### Prerequisites
-- PHP 8.x, Composer
-- Node.js 16+ and npm/yarn
-- MySQL or MariaDB
-- (Optional) Docker & Docker Compose
-
-### Backend (Laravel) setup
-1. Clone the repo
+1. **Clone & Install**
    ```bash
-   git clone https://github.com/SarraHamdi11/pharmacystock.git
+   git clone https://github.com/your-username/pharmacystock.git
    cd pharmacystock
-   ```
-2. Install PHP dependencies
-   ```bash
    composer install
+   npm install && npm run build
    ```
-3. Copy and edit .env
+
+2. **Setup Environment**
    ```bash
    cp .env.example .env
-   # Edit DB_*, APP_URL, and other variables
    php artisan key:generate
    ```
-4. Run migrations and seeders
+
+3. **Initialize Database**
    ```bash
+   touch database/database.sqlite
    php artisan migrate --seed
    ```
-5. Start the backend
-   ```bash
-   php artisan serve --host=0.0.0.0 --port=8000
-   ```
-   Or use Docker: `docker compose up --build`
 
-### Frontend (React) setup
-1. From repo root:
-   ```bash
-   cd frontend
-   npm install
-   cp .env.example .env
-   # configure API base URL in .env (e.g., VITE_API_URL=http://localhost:8000/api)
-   npm run dev
-   ```
-2. Build for production:
-   ```bash
-   npm run build
-   ```
+## 🧪 Demo Credentials
+*Default password for all accounts: `password`*
 
-## Environment Variables (example)
-Backend (.env)
-```
-APP_NAME=PharmacyStock
-APP_ENV=local
-APP_URL=http://localhost:8000
+| Role | Email | Best for testing... |
+| :--- | :--- | :--- |
+| **Admin** | `admin@pharma.com` | Full system control, activity logs, deletions. |
+| **Manager** | `manager@pharma.com` | Inventory reports and sales analytics. |
+| **Pharmacist**| `pharmacist@pharma.com` | Medication management and orders. |
+| **Employee** | `employee@pharma.com` | Sales processing and patient records. |
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=pharmacy_db
-DB_USERNAME=root
-DB_PASSWORD=secret
+## 🧪 Testing
+```bash
+# Run all tests
+php artisan test
+
+# Run tests with coverage
+php artisan test --coverage
 ```
 
-Frontend (.env)
-```
-VITE_API_URL=http://localhost:8000/api
-```
+## 🛡️ Security & Performance
+- **SQL Injection Protection**: Via Eloquent parameter binding.
+- **XSS Protection**: Blade's automatic escaping.
+- **CSRF Protection**: Integrated middleware for all forms.
+- **N+1 Query Prevention**: Eager loading implemented across all relationships.
+- **Caching**: Dashboard stats and analytics cached for optimal performance.
 
-## Database & Seeds
-- Seeds provide sample products, suppliers, and demo users.
-- To refresh database and reseed:
-  ```bash
-  php artisan migrate:fresh --seed
-  ```
+## 🚀 Deployment
+PharmaStock Pro is ready for one-click deployment to **Railway**, **Render**, or **VPS**. See the [Deployment Guide](docs/DEPLOYMENT.md) for details.
 
-## Testing
-- Backend tests with PHPUnit / Pest:
-  ```bash
-  ./vendor/bin/phpunit
-  ```
-- Frontend tests (Jest / RTL):
-  ```bash
-  npm test
-  ```
-
-## Deployment
-- Recommended: containerize with Docker and use a process manager or orchestrator.
-- Example simple production steps:
-  - Build frontend and serve static files via Nginx or serve frontend separately.
-  - Use queue workers & scheduler (supervisor or systemd) for background jobs (notifications, expiry checks).
-  - Configure SSL (Let's Encrypt) and environment secrets.
-
-## API
-- API follows REST conventions. Add real API docs or an OpenAPI spec in `/docs`.
-- Example endpoints:
-  - GET /api/products
-  - POST /api/products
-  - GET /api/stock-movements
-  - POST /api/purchase-orders
-
-## Roadmap
-- Add barcode scanner integration (mobile/web)
-- Scheduled expiry notifications via email/SMS
-- Role & permission granularization
-- Analytics & custom reports
-
-## Contributing
-- Please open issues for bugs or feature requests.
-- Follow coding standards: PSR-12 for PHP, ESLint + Prettier for JS.
-- Add tests for new features and run linters before submitting PRs.
-
-## License
-This project is licensed under the MIT License — see the LICENSE file for details.
-
-## Contact
-SarraHamdi11 — https://github.com/SarraHamdi11
-Project link: https://github.com/SarraHamdi11/pharmacystock
+---
+Developed with ❤️ for the Pharmacy Community.

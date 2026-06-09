@@ -1,57 +1,25 @@
-<div class="sidebar bg-dark text-white p-3" style="min-width: 250px;">
-    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-        <span>{{ __('Management') }}</span>
-    </h5>
-    <ul class="nav flex-column mb-2">
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('dashboard.index') }}">
-                <i class="bi bi-speedometer2"></i> {{ __('Dashboard') }}
+<!-- Sidebar Navigation -->
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto py-4">
+    @foreach([
+        ['route' => 'dashboard.index', 'match' => 'dashboard.*', 'icon' => 'fa-tachometer-alt', 'label' => 'Dashboard', 'can' => null],
+        ['route' => 'products.index', 'match' => 'products.*', 'icon' => 'fa-pills', 'label' => 'Medications', 'can' => 'manage products'],
+        ['route' => 'customers.index', 'match' => 'customers.*', 'icon' => 'fa-users', 'label' => 'Patients', 'can' => 'manage patients'],
+        ['route' => 'orders.index', 'match' => 'orders.*', 'icon' => 'fa-file-invoice', 'label' => 'Orders', 'can' => 'manage orders'],
+        ['route' => 'suppliers.index', 'match' => 'suppliers.*', 'icon' => 'fa-truck-field', 'label' => 'Suppliers', 'can' => 'manage products'],
+        ['route' => 'categories.index', 'match' => 'categories.*', 'icon' => 'fa-tags', 'label' => 'Categories', 'can' => 'manage products'],
+        ['route' => 'reports.index', 'match' => 'reports.*', 'icon' => 'fa-chart-pie', 'label' => 'Analytics', 'can' => 'manage reports'],
+        ['route' => 'activities.index', 'match' => 'activities.*', 'icon' => 'fa-history', 'label' => 'Audit Trail', 'can' => 'manage reports'],
+        ['route' => 'stores.index', 'match' => 'stores.*', 'icon' => 'fa-shop', 'label' => 'Stores', 'can' => 'manage products'],
+        ['route' => 'stocks.index', 'match' => 'stocks.*', 'icon' => 'fa-boxes-stacked', 'label' => 'Inventory', 'can' => 'manage products'],
+    ] as $item)
+        @if(!$item['can'] || auth()->user()->can($item['can']))
+            <a href="{{ route($item['route']) }}"
+               @click="if(window.innerWidth < 1024) sidebarOpen = false"
+               aria-label="{{ __($item['label']) }}"
+               class="{{ request()->routeIs($item['match']) ? 'nav-item-active' : 'nav-item' }} group flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200">
+                <i class="fas {{ $item['icon'] }} w-5 text-center mr-3 transition-transform group-hover:scale-110" aria-hidden="true"></i>
+                <span>{{ __($item['label']) }}</span>
             </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('products.index') }}">
-                <i class="bi bi-box"></i> {{ __('Products') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('categories.index') }}">
-                <i class="bi bi-tags"></i> {{ __('Categories') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('suppliers.index') }}">
-                <i class="bi bi-truck"></i> {{ __('Suppliers') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('customers.index') }}">
-                <i class="bi bi-people"></i> {{ __('Customers') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('orders.index') }}">
-                <i class="bi bi-cart"></i> {{ __('Orders') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('stores.index') }}">
-                <i class="bi bi-shop"></i> {{ __('Stores') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('stocks.index') }}">
-                <i class="bi bi-box-seam"></i> {{ __('Stocks') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('maladies.index') }}">
-                <i class="bi bi-heart-pulse"></i> {{ __('Maladies') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-white" href="{{ route('medicaments.index') }}">
-                <i class="bi bi-capsule"></i> {{ __('Medicaments') }}
-            </a>
-        </li>
-    </ul>
-</div>
+        @endif
+    @endforeach
+</nav>

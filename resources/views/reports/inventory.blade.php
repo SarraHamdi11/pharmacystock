@@ -82,7 +82,7 @@
             <div class="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
                     <i class="fas fa-list"></i>
-                    Inventory Results ({{ $products->count() }} items)
+                    Inventory Results ({{ $products->total() }} items)
                 </h2>
             </div>
             
@@ -102,16 +102,16 @@
                         @foreach($products as $product)
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->category->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->supplier->first_name }} {{ $product->supplier->last_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->category->name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->supplier->name ?? 'N/A' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ number_format($product->price, 2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->stocks->first()->quantity_stock ?? 0 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->current_stock }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    @if($product->stocks->first()->quantity_stock ?? 0 == 0)
+                                    @if($product->is_out_of_stock)
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                             Out of Stock
                                         </span>
-                                    @elseif($product->stocks->first()->quantity_stock <= ($product->stocks->first()->min_stock ?? 5))
+                                    @elseif($product->is_low_stock)
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                             Low Stock
                                         </span>
@@ -125,6 +125,11 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                {{ $products->links() }}
             </div>
         </div>
     </div>

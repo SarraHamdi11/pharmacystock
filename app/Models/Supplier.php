@@ -19,6 +19,14 @@ class Supplier extends Model
         'phone',
     ];
 
+    /**
+     * Get the supplier's full name.
+     */
+    public function getNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
+
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

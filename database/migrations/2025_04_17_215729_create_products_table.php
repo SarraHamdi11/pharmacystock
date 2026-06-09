@@ -16,13 +16,17 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->text('description')->nullable();
-           
-            $table->string('picture')->nullable();
-            $table->timestamps();
             $table->string('generic_name')->nullable();
             $table->string('code_bar')->unique()->nullable();
-            $table->decimal('price', 8, 2); // Exemple avec 8 chiffres au total et 2 décimales
+            $table->text('description')->nullable();
+            $table->decimal('price', 10, 2);
+            $table->decimal('cost_price', 10, 2)->nullable();
+            $table->integer('min_stock')->default(10);
+            $table->boolean('track_expiry')->default(true);
+            $table->date('expiry_date')->nullable();
+            $table->string('picture')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 

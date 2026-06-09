@@ -32,18 +32,22 @@
                     <!-- Product Name -->
                     <div class="space-y-2">
                         <label for="name" class="flex items-center text-sm font-semibold text-gray-700">
-                            <i class="fas fa-pills mr-2 text-teal-600"></i>
-                            Product Name <span class="text-red-500 ml-1">*</span>
+                            <i class="fas fa-pills mr-2 text-teal-600" aria-hidden="true"></i>
+                            Product Name <span class="text-red-500 ml-1" aria-hidden="true">*</span>
+                            <span class="sr-only">(required)</span>
                         </label>
                         <div class="relative">
                             <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                                   aria-required="true"
+                                   aria-invalid="{{ $errors->has('name') ? 'true' : 'false' }}"
+                                   aria-describedby="{{ $errors->has('name') ? 'name-error' : '' }}"
                                    class="w-full px-4 py-3 pl-10 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 bg-gray-50 focus:bg-white"
                                    placeholder="Enter product name">
-                            <i class="fas fa-pills absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-pills absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
                         </div>
                         @error('name')
-                            <p class="text-red-500 text-sm flex items-center mt-1">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
+                            <p class="text-red-500 text-sm flex items-center mt-1" id="name-error" role="alert">
+                                <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>
                                 {{ $message }}
                             </p>
                         @enderror
@@ -52,18 +56,20 @@
                     <!-- Generic Name -->
                     <div class="space-y-2">
                         <label for="generic_name" class="flex items-center text-sm font-semibold text-gray-700">
-                            <i class="fas fa-flask mr-2 text-teal-600"></i>
+                            <i class="fas fa-flask mr-2 text-teal-600" aria-hidden="true"></i>
                             Generic Name
                         </label>
                         <div class="relative">
                             <input type="text" name="generic_name" id="generic_name" value="{{ old('generic_name') }}"
+                                   aria-invalid="{{ $errors->has('generic_name') ? 'true' : 'false' }}"
+                                   aria-describedby="{{ $errors->has('generic_name') ? 'generic-error' : '' }}"
                                    class="w-full px-4 py-3 pl-10 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 bg-gray-50 focus:bg-white"
                                    placeholder="Enter generic name">
-                            <i class="fas fa-flask absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-flask absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
                         </div>
                         @error('generic_name')
-                            <p class="text-red-500 text-sm flex items-center mt-1">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
+                            <p class="text-red-500 text-sm flex items-center mt-1" id="generic-error" role="alert">
+                                <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>
                                 {{ $message }}
                             </p>
                         @enderror
@@ -72,11 +78,15 @@
                     <!-- Category -->
                     <div class="space-y-2">
                         <label for="category_id" class="flex items-center text-sm font-semibold text-gray-700">
-                            <i class="fas fa-tags mr-2 text-teal-600"></i>
-                            Category <span class="text-red-500 ml-1">*</span>
+                            <i class="fas fa-tags mr-2 text-teal-600" aria-hidden="true"></i>
+                            Category <span class="text-red-500 ml-1" aria-hidden="true">*</span>
+                            <span class="sr-only">(required)</span>
                         </label>
                         <div class="relative">
                             <select name="category_id" id="category_id" required
+                                    aria-required="true"
+                                    aria-invalid="{{ $errors->has('category_id') ? 'true' : 'false' }}"
+                                    aria-describedby="{{ $errors->has('category_id') ? 'category-error' : '' }}"
                                     class="w-full px-4 py-3 pl-10 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-200 bg-gray-50 focus:bg-white appearance-none">
                                 <option value="">Select a category</option>
                                 @foreach($categories as $category)
@@ -85,12 +95,12 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <i class="fas fa-tags absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-tags absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
                         </div>
                         @error('category_id')
-                            <p class="text-red-500 text-sm flex items-center mt-1">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
+                            <p class="text-red-500 text-sm flex items-center mt-1" id="category-error" role="alert">
+                                <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>
                                 {{ $message }}
                             </p>
                         @enderror
