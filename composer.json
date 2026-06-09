@@ -82,6 +82,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "policy": {
+            "malware": {
+                "ignore": ["laravel-lang/http-statuses"]
+            }
         }
     },
     "minimum-stability": "stable",
